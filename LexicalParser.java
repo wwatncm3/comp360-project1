@@ -110,9 +110,9 @@ public class RecursiveDescentParser {
         return false;
     }
 
-    public static void main(String[] args) {
+    public static void processFile(String filename) {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("sourcecode.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
             StringBuilder sourceCode = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -123,10 +123,16 @@ public class RecursiveDescentParser {
             LexicalAnalyzer analyzer = new LexicalAnalyzer(sourceCode.toString());
             List<Token> tokens = analyzer.analyze();
 
+            System.out.println("Processing file: " + filename);
             RecursiveDescentParser parser = new RecursiveDescentParser(tokens);
             parser.parseProgram();
         } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
+            System.err.println("Error reading file: " + filename + " - " + e.getMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        processFile("sourcecode1.txt");
+        processFile("sourcecode2.txt");
     }
 }
