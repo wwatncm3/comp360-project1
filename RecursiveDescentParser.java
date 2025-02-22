@@ -21,6 +21,15 @@ public class RecursiveDescentParser {
         }
         return false;
     }
+    
+    // New helper method to match any identifier (based on token type)
+    private boolean matchIdentifier() {
+        if (peek() != null && peek().getType() == TokenType.IDENTIFIER) {
+            currentTokenIndex++;
+            return true;
+        }
+        return false;
+    }
 
     public void parseProgram() {
         if (!match("float")) {
@@ -64,11 +73,12 @@ public class RecursiveDescentParser {
 
     private boolean parseParameters() {
         if (match("float")) {
-            if (!match("data1") && !match("data") && !match("num") && !match("diff")) {
+            if (!matchIdentifier()) {
                 return false;
             }
             if (match(",")) {
-                return match("float") && match("number");
+                if (!match("float")) return false;
+                if (!matchIdentifier()) return false;
             }
         }
         return match(")");
@@ -76,7 +86,7 @@ public class RecursiveDescentParser {
 
     private boolean parseDeclarations() {
         while (match("float")) {
-            if (!match("data") && !match("num") && !match("diff") && !match("data1") && !match("number")) {
+            if (!matchIdentifier()) {
                 return false;
             }
             if (!match(";")) {
@@ -87,11 +97,14 @@ public class RecursiveDescentParser {
     }
 
     private boolean parseStatements() {
-        while (match("data") || match("data1") || match("n")) {
+        // Process statements while the next token is an identifier.
+        while (peek() != null && peek().getType() == TokenType.IDENTIFIER) {
+            if (!matchIdentifier()) return false;
             if (!match("=")) return false;
-            if (!match("data") && !match("data1") && !match("num") && !match("diff") && !match("number")) return false;
-            if (match("*") || match("/")) {
-                if (!match("num") && !match("diff") && !match("number")) return false;
+            if (!matchIdentifier()) return false;
+            if (peek() != null && (peek().getLexeme().equals("*") || peek().getLexeme().equals("/"))) {
+                if (!(match("*") || match("/"))) return false;
+                if (!matchIdentifier()) return false;
             }
             if (!match(";")) return false;
         }
@@ -101,7 +114,7 @@ public class RecursiveDescentParser {
     private boolean parseLoop() {
         if (match("while")) {
             if (!match("(")) return false;
-            if (!match("n") && !match("data")) return false;
+            if (!matchIdentifier()) return false;
             if (!match(">=")) return false;
             if (!match("10") && !match("const")) return false;
             if (!match(")")) return false;
