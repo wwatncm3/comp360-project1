@@ -22,7 +22,7 @@ public class RecursiveDescentParser {
         return false;
     }
     
-    // New helper method to match any identifier (based on token type)
+    // Helper method to check if the next token is an identifier (based on its type)
     private boolean matchIdentifier() {
         if (peek() != null && peek().getType() == TokenType.IDENTIFIER) {
             currentTokenIndex++;
@@ -73,6 +73,7 @@ public class RecursiveDescentParser {
 
     private boolean parseParameters() {
         if (match("float")) {
+            // Instead of checking for specific names, we just accept any identifier here
             if (!matchIdentifier()) {
                 return false;
             }
@@ -86,6 +87,7 @@ public class RecursiveDescentParser {
 
     private boolean parseDeclarations() {
         while (match("float")) {
+            // Accept any identifier for a declaration instead of hardcoding names
             if (!matchIdentifier()) {
                 return false;
             }
@@ -97,11 +99,14 @@ public class RecursiveDescentParser {
     }
 
     private boolean parseStatements() {
-        // Process statements while the next token is an identifier.
+        // Keep processing statements as long as the next token is an identifier
         while (peek() != null && peek().getType() == TokenType.IDENTIFIER) {
+            // Grab the LHS identifier
             if (!matchIdentifier()) return false;
             if (!match("=")) return false;
+            // Accept any identifier on the right-hand side
             if (!matchIdentifier()) return false;
+            // Check for an optional operator (* or /) and then another identifier
             if (peek() != null && (peek().getLexeme().equals("*") || peek().getLexeme().equals("/"))) {
                 if (!(match("*") || match("/"))) return false;
                 if (!matchIdentifier()) return false;
@@ -114,6 +119,7 @@ public class RecursiveDescentParser {
     private boolean parseLoop() {
         if (match("while")) {
             if (!match("(")) return false;
+            // Accept any identifier in the loop condition
             if (!matchIdentifier()) return false;
             if (!match(">=")) return false;
             if (!match("10") && !match("const")) return false;
